@@ -1,4 +1,4 @@
-function [ bandit_alg ] = make_reinforcement_compare_adjusted_prob( alpha, beta, ref )
+function [ bandit_alg ] = make_reinforcement_compare_adjusted_prob( alpha, beta, gamma, ref )
 %MAKE_REINFORCEMENT_COMPARE_ADJUSTED_PROB Add (1 - p(a)) to value updates.
 
 global banditmeans
@@ -17,7 +17,7 @@ end
             pa = exps(a) / cdf(end);
             
             r = randn + banditmeans(n,a);
-            values(a) = values(a) + beta*(r - ref_reward + (1 - pa));
+            values(a) = values(a) + beta*(r - ref_reward) + gamma*(1 - pa);
             ref_reward = ref_reward + alpha*(r - ref_reward);
             
             actions(t) = a;

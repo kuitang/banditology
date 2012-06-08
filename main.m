@@ -19,6 +19,8 @@
 % This project compares various algorithms to solve the
 % exploration/exploitation tradeoff.
 %
+% Finally, reinforcement learning is well-suited for nonstationary
+% problems. Nonstationary bandits will be explored in a later release.
 
 %% Make bandits.
 clear
@@ -120,36 +122,34 @@ compare_bandits(4000, 'Reinforcement Comparison Parameters', ...
 % $\beta = 0.1$, showing that the additional exploration does eventually
 % pay off.
 
-%% Exercise 2.11: compare the adjusted probabilities vs. not
-T = 1000;
-rc_01_01_minus5   = make_reinforcement_compare(0.1, 0.1, -10);
-rcapurs_01_minus5 = make_reinforcement_compare_adjusted_prob(0.1, 0.1, -10);
-[f1, m1] = eval_bandit(rc_01_01_minus5, T);
-[f2, m2] = eval_bandit(rcapurs_01_minus5, T);
+%% Exercise 2.11: Adjust probabilities for low initial rewards.
+% If the initial reward is low, reinforcement comparison can result in
+% insufficient exploration because whichever action first will have
+% substantially higher reward and will be favored regardless of whether it
+% was optimal.
+%
+% We can compensate by adding (1 - p(a)) to value updates. This encourages
+% exploration: anytime we hit a low-probability action (i.e. an action with
+% low current value), we automatically increase its value to encourage
+% visiting it again.
+%
+% Unfortunately, this decreases performances. I hope this is just a bug...
+% if you can help me find it, many thanks to you!
+unadj   = make_reinforcement_compare(0.1, 0.1, -5);
+adj_001 = make_reinforcement_compare_adjusted_prob(0.1, 0.1, 0.01, -5);
+adj_01  = make_reinforcement_compare_adjusted_prob(0.1, 0.1, 0.1, -5);
 
-x = 1:T
-figure
-plot(x,f1,x,f2);
-legend('unadjusted', 'adjusted');
-title('Percent optimal action --- reference reward = -10');
+compare_bandits(T, 'Probability Adjustment; initial reference = -5', ...
+                   'unadjusted', unadj, ...
+                   'adjusted \gamma = 0.01', adj_001, ...
+                   'adjusted \gamma = 0.1', adj_01);
 
-figure
-plot(x,m1,x,m2);
-legend('unadjusted', 'adjusted');
-title('Mean reward --- reference reward = -10');
+%% Adjust probabilities for high initial rewards.
+% Probability adjustments also hurts performance with optimistic initial
+% values.
+unadj = make_reinforcement_compare(0.1, 0.1, 5);
+adj = make_reinforcement_compare_adjusted_prob(0.1, 0.1, 0.1, 5);
 
-%% Optimistic version of above
-rc_01_01_plus5   = make_reinforcement_compare(0.1, 0.1, 5);
-rcapurs_01_plus5 = make_reinforcement_compare_adjusted_prob(0.1, 0.1, 5);
-[f1, m1] = eval_bandit(rc_01_01_plus5, T);
-[f2, m2] = eval_bandit(rcapurs_01_plus5, T);
-
-figure
-plot(x,f1,x,f2);
-legend('unadjusted', 'adjusted');
-title('Percent optimal action --- reference reward = 5');
-
-figure
-plot(x,m1,x,m2);
-legend('unadjusted', 'adjusted');
-title('Mean reward --- reference reward = 5');
+compare_bandits(T, 'Probability Adjustment; initial reference = 5', ...
+                   'unadjusted', unadj, ...
+                   'adjusted \gamma = 0.1', adj);
