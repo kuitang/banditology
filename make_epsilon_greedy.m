@@ -8,15 +8,17 @@ function [ bandit_alg ] = make_epsilon_greedy( epsilon )
 global banditmeans
 
     function [ actions, rewards, values ] = ba(n, A, T, actions, rewards, values)
+        counts = zeros(1, A);
         for t = 1:T
             if rand < epsilon
                 a = randi(A);
             else
                 [~, a] = max(values);
             end
-            
+            counts(a) = counts(a) + 1;            
             r = randn + banditmeans(n,a);
-            values(a) = values(a) + (r - values(a)) / t; % on-line mean update
+            
+            values(a) = values(a) + (r - values(a)) / counts(a); % on-line mean update
             actions(t) = a;
             rewards(t) = r;
         end
