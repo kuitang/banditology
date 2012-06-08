@@ -3,6 +3,9 @@ function [ actions, rewards ] = run_bandit( bandit_alg, n, T, values )
 %   [ actions, rewards ] = run_bandit(bandit_alg, n, T, values=0) runs
 %   bandit algorithm on bandit n (a function handle) for T plays.
 %
+%   This function implements some boilerplate so your bandit algorithms
+%   don't have to repeat them.
+%
 %   [ actions, rewards ] = bandit_alg(A, T, actions, rewards, values) is a
 %   function that runs T bandit plays. bandit_alg should just take care of
 %   one timestep but for speed, we implement the entire inner loop in
