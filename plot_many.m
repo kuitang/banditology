@@ -20,4 +20,4 @@ end
 
 figure
 plot(plot_vecs{:});
-legend(labels{:});
+legend(labels{:},'Location','Best');
